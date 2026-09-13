@@ -1,0 +1,139 @@
+import React, { useState } from 'react';
+import { Menu, X, MessageCircle, Send, Clock, MapPin } from 'lucide-react';
+
+export default function TurfBookingApp() {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [selectedTurf, setSelectedTurf] = useState(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showChatbot, setShowChatbot] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState([
+    { role: 'bot', text: 'Hi! 👋 Ask me about our turfs, pricing, or availability.' }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [bookingData, setBookingData] = useState({
+    date: '', time: '', hours: '1', name: '', phone: ''
+  });
+
+  const turfs = [
+    { id: 1, name: 'Avinash Sports Arena', location: 'Race Course Road', sports: ['Football', 'Cricket', 'Badminton'], pricing: '₹500/hour', rating: 4.8, image: '🏟️', timings: '6 AM - 11 PM', amenities: ['Lights', 'Parking', 'Restrooms', 'Seating'] },
+    { id: 2, name: 'Champions Turf', location: 'Peelamedu', sports: ['Football', 'Basketball'], pricing: '₹600/hour', rating: 4.6, image: '⚽', timings: '7 AM - 10 PM', amenities: ['Lights', 'Water', 'Parking'] },
+    { id: 3, name: 'Victory Grounds', location: 'Gandhipuram', sports: ['Cricket', 'Volleyball', 'Basketball'], pricing: '₹400/hour', rating: 4.5, image: '🏏', timings: '6 AM - 10:30 PM', amenities: ['Lights', 'Equipment', 'Cafeteria'] },
+    { id: 4, name: 'Elite Sports Hub', location: 'Keeranatham', sports: ['Badminton', 'Tennis', 'Squash'], pricing: '₹800/hour', rating: 4.9, image: '🎾', timings: '6 AM - 11 PM', amenities: ['AC Courts', 'Lights', 'Coaching', 'Parking'] },
+    { id: 5, name: 'Green Field Turf', location: 'Tatabad', sports: ['Football', 'Kabaddi'], pricing: '₹450/hour', rating: 4.4, image: '🌱', timings: '7 AM - 9:30 PM', amenities: ['Lights', 'Parking', 'Restrooms'] },
+    { id: 6, name: 'Pro Play Arena', location: 'Brookefields', sports: ['All Sports', 'Multi-court'], pricing: '₹550/hour', rating: 4.7, image: '⭐', timings: '6 AM - 11 PM', amenities: ['Lights', 'Parking', 'Cafeteria', 'Coaching'] }
+  ];
+
+  const generateAIResponse = (userMessage) => {
+    const message = userMessage.toLowerCase();
+    if (message.includes('price') || message.includes('cost')) return 'Our turfs range from ₹400-₹800 per hour. Elite Sports Hub is premium (₹800), while Green Field Turf offers great value at ₹450/hour.';
+    if (message.includes('hours') || message.includes('timing')) return 'Most turfs are open from 6-7 AM and close between 9:30-11 PM. Elite Sports Hub & Avinash Sports Arena stay open until 11 PM.';
+    if (message.includes('cricket')) return 'Cricket turfs: Victory Grounds (₹400/hr, Gandhipuram), Avinash Sports Arena (₹500/hr, Race Course). Both have great ratings!';
+    if (message.includes('football')) return 'Football turfs: Champions Turf (₹600/hr), Avinash Sports Arena (₹500/hr), Green Field Turf (₹450/hr).';
+    if (message.includes('booking') || message.includes('book')) return 'To book: 1) Choose a turf, 2) Pick date & time, 3) Select duration, 4) Confirm details.';
+    return '📍 I can help you find turfs, check pricing, and book slots. Ask about sports, prices, or recommendations!';
+  };
+
+  const handleSendMessage = () => {
+    if (!chatInput.trim()) return;
+    setChatMessages(prev => [...prev, { role: 'user', text: chatInput }]);
+    setTimeout(() => {
+      setChatMessages(prev => [...prev, { role: 'bot', text: generateAIResponse(chatInput) }]);
+    }, 500);
+    setChatInput('');
+  };
+
+  const handleBooking = () => {
+    if (!bookingData.date || !bookingData.time || !bookingData.name || !bookingData.phone) {
+      alert('Please fill all fields');
+      return;
+    }
+    alert(`✅ Booking confirmed!\n\n${selectedTurf.name}\nDate: ${bookingData.date}\nTime: ${bookingData.time}\nDuration: ${bookingData.hours} hour(s)`);
+    setShowBookingModal(false);
+    setBookingData({ date: '', time: '', hours: '1', name: '', phone: '' });
+  };
+
+  return (
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen font-sans">
+      <nav className="bg-white shadow-md sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="text-2xl font-bold text-indigo-600">⚽ TurfHub Coimbatore</div>
+          <div className="hidden md:flex gap-6">
+            <button onClick={() => setCurrentPage('home')} className={`font-medium ${currentPage === 'home' ? 'text-indigo-600' : 'text-gray-600'}`}>Home</button>
+            <button onClick={() => setCurrentPage('turfs')} className={`font-medium ${currentPage === 'turfs' ? 'text-indigo-600' : 'text-gray-600'}`}>Browse</button>
+          </div>
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden">
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </nav>
+
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {currentPage === 'home' && (
+          <div>
+            <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl p-8 mb-8">
+              <h1 className="text-4xl font-bold mb-4">Book Your Perfect Turf in Coimbatore</h1>
+              <p className="text-lg mb-6">Play cricket, football, badminton & more at the best prices</p>
+              <button onClick={() => setCurrentPage('turfs')} className="bg-white text-indigo-600 font-bold px-6 py-3 rounded-lg hover:bg-gray-100">Browse All Turfs →</button>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white p-6 rounded-lg shadow-md"><div className="text-3xl mb-2">🏆</div><h3 className="font-bold text-lg mb-2">Top Rated</h3><p className="text-gray-600">4.5+ ★ rated facilities</p></div>
+              <div className="bg-white p-6 rounded-lg shadow-md"><div className="text-3xl mb-2">⚡</div><h3 className="font-bold text-lg mb-2">Easy Booking</h3><p className="text-gray-600">Book in minutes</p></div>
+              <div className="bg-white p-6 rounded-lg shadow-md"><div className="text-3xl mb-2">💰</div><h3 className="font-bold text-lg mb-2">Best Prices</h3><p className="text-gray-600">₹400-₹800/hour</p></div>
+            </div>
+          </div>
+        )}
+
+        {currentPage === 'turfs' && (
+          <div>
+            <h1 className="text-4xl font-bold mb-8">All Turfs in Coimbatore</h1>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {turfs.map(turf => (
+                <div key={turf.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
+                  <div className="text-6xl bg-indigo-100 p-4 text-center">{turf.image}</div>
+                  <div className="p-4">
+                    <h3 className="font-bold text-lg mb-1">{turf.name}</h3>
+                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-2"><MapPin size={16} /> {turf.location}</div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-3"><Clock size={16} /> {turf.timings}</div>
+                    <div className="flex gap-2 flex-wrap mb-3">{turf.sports.map(sport => <span key={sport} className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium">{sport}</span>)}</div>
+                    <div className="flex justify-between items-center mb-4"><span className="font-bold text-lg text-indigo-600">{turf.pricing}</span><span className="text-yellow-500 font-bold">{turf.rating}★</span></div>
+                    <button onClick={() => { setSelectedTurf(turf); setShowBookingModal(true); }} className="w-full bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700">Book Now</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {showBookingModal && selectedTurf && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4">Book {selectedTurf.name}</h2>
+            <div className="space-y-4">
+              <input type="date" value={bookingData.date} onChange={(e) => setBookingData({...bookingData, date: e.target.value})} className="w-full border rounded px-3 py-2" />
+              <input type="time" value={bookingData.time} onChange={(e) => setBookingData({...bookingData, time: e.target.value})} className="w-full border rounded px-3 py-2" />
+              <select value={bookingData.hours} onChange={(e) => setBookingData({...bookingData, hours: e.target.value})} className="w-full border rounded px-3 py-2">{[1,2,3,4,5,6].map(h => <option key={h} value={h}>{h}</option>)}</select>
+              <input type="text" value={bookingData.name} onChange={(e) => setBookingData({...bookingData, name: e.target.value})} placeholder="Your Name" className="w-full border rounded px-3 py-2" />
+              <input type="tel" value={bookingData.phone} onChange={(e) => setBookingData({...bookingData, phone: e.target.value})} placeholder="Phone" className="w-full border rounded px-3 py-2" />
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setShowBookingModal(false)} className="flex-1 bg-gray-300 text-gray-700 font-bold py-2 rounded-lg">Cancel</button>
+              <button onClick={handleBooking} className="flex-1 bg-indigo-600 text-white font-bold py-2 rounded-lg">Confirm</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <button onClick={() => setShowChatbot(!showChatbot)} className="fixed bottom-6 right-6 bg-indigo-600 text-white rounded-full p-4 shadow-lg hover:bg-indigo-700 z-30"><MessageCircle size={24} /></button>
+
+      {showChatbot && (
+        <div className="fixed bottom-24 right-6 bg-white rounded-lg shadow-2xl w-96 max-h-96 flex flex-col z-40">
+          <div className="bg-indigo-600 text-white p-4 font-bold rounded-t-lg flex justify-between"><span>TurfHub AI</span><button onClick={() => setShowChatbot(false)}>×</button></div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">{chatMessages.map((msg, idx) => (<div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-xs px-4 py-2 rounded-lg ${msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800'}`}>{msg.text}</div></div>))}</div>
+          <div className="border-t p-3 flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} placeholder="Ask..." className="flex-1 border rounded px-3 py-2" /><button onClick={handleSendMessage} className="bg-indigo-600 text-white p-2 rounded"><Send size={18} /></button></div>
+        </div>
+      )}
+    </div>
+  );
+}
